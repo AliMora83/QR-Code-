@@ -1,3 +1,15 @@
+:root {
+    --blur-filter-heavy: blur(20px);
+    --primary-color: var(--primary-color);
+    --secondary-color: var(--secondary-color);
+    --text-color: var(--text-color);
+    --background-color: var(--background-color);
+    --border-color: var(--border-color);
+    --button-bg-light: var(--button-bg-light);
+    --button-bg-active: var(--button-bg-active);
+    --panel-bg: var(--panel-bg);
+    --blur-filter: var(--blur-filter);
+}
         * {
             margin: 0;
             padding: 0;
@@ -15,8 +27,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #000;
-            color: #fff;
+            background: var(--background-color);
+            color: var(--text-color);
         }
 
         .container {
@@ -60,7 +72,7 @@
             position: relative;
             width: 100%;
             height: 100%;
-            background: #000;
+            background: var(--background-color);
             overflow: hidden;
         }
 
@@ -96,7 +108,7 @@
             height: 65vw;
             max-width: 300px;
             max-height: 300px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid var(--border-color);
             border-radius: 20px;
             pointer-events: none;
             z-index: 5;
@@ -106,7 +118,7 @@
             position: absolute;
             width: 25px;
             height: 25px;
-            border-color: #00d4ff;
+            border-color: var(--primary-color);
             border-style: solid;
             border-width: 0;
         }
@@ -147,10 +159,10 @@
             position: absolute;
             width: 100%;
             height: 2px;
-            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
             top: 0;
             animation: scanMove 2s linear infinite;
-            box-shadow: 0 0 10px #00d4ff;
+            box-shadow: 0 0 10px var(--primary-color);
         }
 
         @keyframes scanMove {
@@ -177,16 +189,16 @@
         }
 
         .btn {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
+            background: var(--button-bg-light);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
             padding: 12px 20px;
             border-radius: 25px;
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: var(--blur-filter);
+            -webkit-backdrop-filter: var(--blur-filter);
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
@@ -199,11 +211,11 @@
 
         .btn:active {
             transform: scale(0.95);
-            background: rgba(255, 255, 255, 0.25);
+            background: var(--button-bg-active);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             border: none;
             box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
         }
@@ -230,8 +242,8 @@
 
         .top-btn {
             background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
             width: 44px;
             height: 44px;
             border-radius: 50%;
@@ -241,14 +253,14 @@
             align-items: center;
             justify-content: center;
             font-size: 1.3rem;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: var(--blur-filter);
+            -webkit-backdrop-filter: var(--blur-filter);
             transition: all 0.2s;
         }
 
         .top-btn:active {
             transform: scale(0.9);
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--border-color);
         }
 
         .top-btn.active {
@@ -261,8 +273,8 @@
             position: absolute;
             top: -5px;
             right: -5px;
-            background: #00d4ff;
-            color: #000;
+            background: var(--primary-color);
+            color: var(--background-color);
             font-size: 0.65rem;
             font-weight: bold;
             width: 18px;
@@ -278,9 +290,9 @@
             bottom: -100%;
             left: 0;
             right: 0;
-            background: rgba(15, 15, 15, 0.98);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: var(--panel-bg);
+            backdrop-filter: var(--blur-filter-heavy);
+            -webkit-backdrop-filter: var(--blur-filter-heavy);
             border-top-left-radius: 25px;
             border-top-right-radius: 25px;
             padding: 20px;
@@ -306,13 +318,13 @@
         .result-title {
             font-size: 1rem;
             font-weight: 700;
-            color: #00d4ff;
+            color: var(--primary-color);
         }
 
         .close-btn {
             background: rgba(255, 255, 255, 0.1);
             border: none;
-            color: #fff;
+            color: var(--text-color);
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -355,7 +367,7 @@
 
         .action-btn.copy {
             background: rgba(0, 212, 255, 0.2);
-            color: #00d4ff;
+            color: var(--primary-color);
         }
 
         .action-btn.open {
@@ -365,7 +377,7 @@
 
         .action-btn.share {
             background: rgba(255, 255, 255, 0.1);
-            color: #fff;
+            color: var(--text-color);
         }
 
         .action-btn:active {
@@ -402,7 +414,7 @@
             max-width: 320px;
             height: 100%;
             background: rgba(10, 10, 10, 0.98);
-            backdrop-filter: blur(20px);
+            backdrop-filter: var(--blur-filter-heavy);
             z-index: 200;
             transition: left 0.3s ease;
             padding: 20px;
@@ -444,7 +456,7 @@
 
         .history-text {
             font-size: 0.85rem;
-            color: #fff;
+            color: var(--text-color);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -491,7 +503,7 @@
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);
-            color: #fff;
+            color: var(--text-color);
             padding: 10px 20px;
             border-radius: 20px;
             font-size: 0.85rem;

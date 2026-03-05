@@ -7,6 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
     <title>QR Scanner Pro</title>
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
@@ -29,11 +30,10 @@
             </div>
 
             <div class="top-controls">
-                <button class="top-btn" id="historyBtn" onclick="toggleHistory()">
+                <button class="top-btn" id="historyBtn" onclick="toggleHistory()" aria-label="Show Scan History">
                     📋
                     <span class="history-badge" id="scanCount" style="display: none;">0</span>
                 </button>
-                <button class="top-btn" id="torchBtn" onclick="toggleTorch()">🔦</button>
             </div>
 
             <div class="permission-denied" id="permissionDenied">
@@ -45,10 +45,10 @@
         </main>
 
         <footer class="controls">
-            <button class="btn btn-primary" onclick="toggleScanning()" id="scanBtn">
+            <button class="btn btn-primary" onclick="toggleScanning()" id="scanBtn" aria-label="Toggle Scanning">
                 <span id="scanBtnText">⏸ Pause</span>
             </button>
-            <button class="btn" onclick="document.getElementById('fileInput').click()">
+            <button class="btn" onclick="document.getElementById('fileInput').click()" aria-label="Open Gallery to scan image">
                 📁 Gallery
             </button>
             <input type="file" id="fileInput" accept="image/*" onchange="handleFileUpload(event)">
@@ -58,7 +58,7 @@
     <div class="result-panel" id="resultPanel">
         <div class="result-header">
             <div class="result-title">✅ Code Detected</div>
-            <button class="close-btn" onclick="closeResult()">×</button>
+            <button class="close-btn" onclick="closeResult()" aria-label="Close Result">×</button>
         </div>
         <div class="result-content" id="resultContent"></div>
         <div class="action-buttons">
@@ -73,7 +73,7 @@
     <div class="history-panel" id="historyPanel">
         <div class="history-header">
             <h2 style="font-size: 1.1rem;">Scan History</h2>
-            <button class="close-btn" onclick="toggleHistory()">×</button>
+            <button class="close-btn" onclick="toggleHistory()" aria-label="Close History">×</button>
         </div>
         <div id="historyList"></div>
         <button class="btn" onclick="clearHistory()" style="margin-top: 15px; width: 100%;">Clear All</button>
