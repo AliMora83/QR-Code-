@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
     <title>QR Scanner Pro</title>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
@@ -10,52 +13,66 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: fixed;
+            touch-action: none;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #0a0a0a;
+            background: #000;
             color: #fff;
-            overflow: hidden;
-            touch-action: manipulation;
         }
 
         .container {
             height: 100vh;
+            height: 100dvh; /* Dynamic viewport height for mobile */
+            width: 100vw;
             display: flex;
             flex-direction: column;
             position: relative;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .header {
-            padding: 20px;
-            text-align: center;
-            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
             position: absolute;
             top: 0;
-            width: 100%;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            padding-top: max(15px, env(safe-area-inset-top));
+            text-align: center;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
             z-index: 10;
+            pointer-events: none;
         }
 
         h1 {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 700;
             letter-spacing: -0.5px;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .subtitle {
-            font-size: 0.85rem;
-            color: #888;
+            font-size: 0.8rem;
+            color: #aaa;
         }
 
         .scanner-container {
             flex: 1;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 100%;
+            height: 100%;
             background: #000;
+            overflow: hidden;
         }
 
         #reader {
@@ -66,38 +83,40 @@
             left: 0;
         }
 
-        /* Custom overlay */
+        /* Hide default html5-qrcode elements */
+        #reader video {
+            object-fit: cover !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        #reader__dashboard_section_csr span {
+            display: none !important;
+        }
+
+        #reader__dashboard_section_swaplink {
+            display: none !important;
+        }
+
         .scanner-overlay {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 280px;
-            height: 280px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            width: 65vw;
+            height: 65vw;
+            max-width: 300px;
+            max-height: 300px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
             pointer-events: none;
             z-index: 5;
         }
 
-        .scanner-overlay::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border-radius: 20px;
-            background: linear-gradient(45deg, #00d4ff, #7b2cbf);
-            opacity: 0;
-            animation: scanPulse 2s infinite;
-            z-index: -1;
-        }
-
         .corner {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
             border-color: #00d4ff;
             border-style: solid;
             border-width: 0;
@@ -106,32 +125,32 @@
         .corner.top-left {
             top: -2px;
             left: -2px;
-            border-top-width: 4px;
-            border-left-width: 4px;
+            border-top-width: 3px;
+            border-left-width: 3px;
             border-top-left-radius: 20px;
         }
 
         .corner.top-right {
             top: -2px;
             right: -2px;
-            border-top-width: 4px;
-            border-right-width: 4px;
+            border-top-width: 3px;
+            border-right-width: 3px;
             border-top-right-radius: 20px;
         }
 
         .corner.bottom-left {
             bottom: -2px;
             left: -2px;
-            border-bottom-width: 4px;
-            border-left-width: 4px;
+            border-bottom-width: 3px;
+            border-left-width: 3px;
             border-bottom-left-radius: 20px;
         }
 
         .corner.bottom-right {
             bottom: -2px;
             right: -2px;
-            border-bottom-width: 4px;
-            border-right-width: 4px;
+            border-bottom-width: 3px;
+            border-right-width: 3px;
             border-bottom-right-radius: 20px;
         }
 
@@ -152,43 +171,46 @@
             100% { top: 100%; opacity: 0; }
         }
 
-        @keyframes scanPulse {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 0.5; }
-        }
-
         .controls {
             position: absolute;
             bottom: 0;
-            width: 100%;
-            padding: 30px 20px;
-            background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, transparent 100%);
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            padding-bottom: max(15px, env(safe-area-inset-bottom));
+            background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
             display: flex;
-            flex-direction: column;
-            gap: 15px;
+            flex-direction: row;
+            gap: 10px;
             z-index: 10;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 1rem;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 6px;
+            flex: 1;
+            max-width: 150px;
+            white-space: nowrap;
         }
 
         .btn:active {
-            transform: scale(0.98);
-            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.25);
         }
 
         .btn-primary {
@@ -197,8 +219,69 @@
             box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
         }
 
-        .btn-primary:active {
-            box-shadow: 0 2px 10px rgba(0, 212, 255, 0.2);
+        .btn-icon {
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            border-radius: 50%;
+            flex: 0 0 44px;
+        }
+
+        .top-controls {
+            position: absolute;
+            top: max(60px, env(safe-area-inset-top));
+            left: 0;
+            right: 0;
+            padding: 0 15px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .top-btn {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.2s;
+        }
+
+        .top-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .top-btn.active {
+            background: rgba(255, 215, 0, 0.4);
+            color: #ffd700;
+            border-color: #ffd700;
+        }
+
+        .history-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #00d4ff;
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .result-panel {
@@ -206,14 +289,16 @@
             bottom: -100%;
             left: 0;
             right: 0;
-            background: rgba(20, 20, 20, 0.98);
+            background: rgba(15, 15, 15, 0.98);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-top-left-radius: 25px;
             border-top-right-radius: 25px;
-            padding: 25px;
+            padding: 20px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
             transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 100;
-            max-height: 50vh;
+            max-height: 60vh;
             overflow-y: auto;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -226,11 +311,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .result-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             color: #00d4ff;
         }
@@ -251,32 +336,32 @@
 
         .result-content {
             background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
+            padding: 12px;
             border-radius: 12px;
             word-break: break-all;
             font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            line-height: 1.5;
+            font-size: 0.85rem;
+            line-height: 1.4;
             color: #e0e0e0;
             margin-bottom: 15px;
-            max-height: 150px;
+            max-height: 120px;
             overflow-y: auto;
         }
 
         .action-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
         }
 
         .action-btn {
-            padding: 12px;
+            padding: 10px;
             border-radius: 10px;
             border: none;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .action-btn.copy {
@@ -306,6 +391,8 @@
             text-align: center;
             padding: 20px;
             display: none;
+            width: 90%;
+            max-width: 300px;
         }
 
         .permission-denied.show {
@@ -313,61 +400,24 @@
         }
 
         .permission-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
+            font-size: 3rem;
+            margin-bottom: 15px;
             opacity: 0.5;
-        }
-
-        .torch-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .torch-btn.active {
-            background: rgba(255, 215, 0, 0.3);
-            color: #ffd700;
-        }
-
-        .scan-history {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            padding: 10px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            z-index: 20;
-            backdrop-filter: blur(10px);
         }
 
         .history-panel {
             position: fixed;
             top: 0;
             left: -100%;
-            width: 80%;
-            max-width: 350px;
+            width: 85%;
+            max-width: 320px;
             height: 100%;
             background: rgba(10, 10, 10, 0.98);
             backdrop-filter: blur(20px);
             z-index: 200;
             transition: left 0.3s ease;
             padding: 20px;
+            padding-top: max(20px, env(safe-area-inset-top));
             overflow-y: auto;
         }
 
@@ -386,7 +436,7 @@
 
         .history-item {
             background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
+            padding: 12px;
             border-radius: 12px;
             margin-bottom: 10px;
             cursor: pointer;
@@ -398,13 +448,13 @@
         }
 
         .history-time {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #666;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .history-text {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #fff;
             white-space: nowrap;
             overflow: hidden;
@@ -417,7 +467,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 150;
             opacity: 0;
             pointer-events: none;
@@ -433,6 +483,7 @@
             text-align: center;
             color: #666;
             padding: 40px;
+            font-size: 0.9rem;
         }
 
         .vibrate {
@@ -441,8 +492,33 @@
 
         @keyframes vibrate {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* Hide file input */
+        input[type="file"] {
+            display: none;
         }
     </style>
 </head>
@@ -456,7 +532,7 @@
         <div class="scanner-container">
             <div id="reader"></div>
             
-            <div class="scanner-overlay">
+            <div class="scanner-overlay" id="scannerOverlay">
                 <div class="corner top-left"></div>
                 <div class="corner top-right"></div>
                 <div class="corner bottom-left"></div>
@@ -464,25 +540,30 @@
                 <div class="scan-line"></div>
             </div>
 
-            <button class="torch-btn" id="torchBtn" onclick="toggleTorch()">🔦</button>
-            <button class="scan-history" id="historyBtn" onclick="toggleHistory()">📋 <span id="scanCount">0</span></button>
+            <div class="top-controls">
+                <button class="top-btn" id="historyBtn" onclick="toggleHistory()">
+                    📋
+                    <span class="history-badge" id="scanCount" style="display: none;">0</span>
+                </button>
+                <button class="top-btn" id="torchBtn" onclick="toggleTorch()">🔦</button>
+            </div>
 
             <div class="permission-denied" id="permissionDenied">
                 <div class="permission-icon">📷</div>
-                <h2>Camera Access Required</h2>
-                <p style="color: #888; margin: 10px 0;">Please allow camera access to scan QR codes</p>
-                <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 20px;">Retry</button>
+                <h3 style="margin-bottom: 10px;">Camera Access Required</h3>
+                <p style="color: #888; font-size: 0.9rem; line-height: 1.4;">Please allow camera access to scan QR codes</p>
+                <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 20px; width: 100%;">Retry</button>
             </div>
         </div>
 
         <div class="controls">
             <button class="btn btn-primary" onclick="toggleScanning()" id="scanBtn">
-                <span id="scanBtnText">Stop Scanning</span>
+                <span id="scanBtnText">⏸ Pause</span>
             </button>
             <button class="btn" onclick="document.getElementById('fileInput').click()">
-                📁 Upload Image
+                📁 Gallery
             </button>
-            <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileUpload(event)">
+            <input type="file" id="fileInput" accept="image/*" onchange="handleFileUpload(event)">
         </div>
     </div>
 
@@ -503,19 +584,21 @@
 
     <div class="history-panel" id="historyPanel">
         <div class="history-header">
-            <h2>Scan History</h2>
+            <h2 style="font-size: 1.1rem;">Scan History</h2>
             <button class="close-btn" onclick="toggleHistory()">×</button>
         </div>
         <div id="historyList"></div>
-        <button class="btn" onclick="clearHistory()" style="margin-top: 20px; width: 100%;">Clear History</button>
+        <button class="btn" onclick="clearHistory()" style="margin-top: 15px; width: 100%;">Clear All</button>
     </div>
 
     <script>
         let html5QrCode;
-        let isScanning = false;
+        let isScanning = true;
         let currentResult = '';
         let scanHistory = JSON.parse(localStorage.getItem('qrScanHistory') || '[]');
         let torchEnabled = false;
+        let currentCameraId = null;
+        let stream = null;
 
         // Initialize scanner
         async function initScanner() {
@@ -524,7 +607,14 @@
                 const devices = await Html5Qrcode.getCameras();
                 
                 if (devices && devices.length) {
-                    const backCamera = devices.find(device => device.label.toLowerCase().includes('back')) || devices[0];
+                    // Prefer back camera
+                    const backCamera = devices.find(device => 
+                        device.label.toLowerCase().includes('back') || 
+                        device.label.toLowerCase().includes('rear') ||
+                        device.label.toLowerCase().includes('environment')
+                    ) || devices[0];
+                    
+                    currentCameraId = backCamera.id;
                     await startScanning(backCamera.id);
                 } else {
                     showPermissionDenied();
@@ -537,21 +627,102 @@
 
         async function startScanning(cameraId) {
             try {
+                const config = {
+                    fps: 10,
+                    qrbox: { width: 200, height: 200 },
+                    aspectRatio: 1.0,
+                    videoConstraints: {
+                        deviceId: { exact: cameraId },
+                        facingMode: "environment"
+                    }
+                };
+
                 await html5QrCode.start(
                     cameraId,
-                    {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1.0
-                    },
+                    config,
                     onScanSuccess,
                     onScanFailure
                 );
+                
                 isScanning = true;
                 updateScanButton();
+                
+                // Try to get the video stream for torch control
+                setTimeout(setupTorch, 1000);
+                
             } catch (err) {
                 console.error("Error starting scanner:", err);
-                showPermissionDenied();
+                // Try without exact deviceId constraint
+                try {
+                    await html5QrCode.start(
+                        { facingMode: "environment" },
+                        { fps: 10, qrbox: { width: 200, height: 200 } },
+                        onScanSuccess,
+                        onScanFailure
+                    );
+                    isScanning = true;
+                    updateScanButton();
+                    setTimeout(setupTorch, 1000);
+                } catch (err2) {
+                    showPermissionDenied();
+                }
+            }
+        }
+
+        function setupTorch() {
+            // Get the video element created by html5-qrcode
+            const video = document.querySelector('#reader video');
+            if (video && video.srcObject) {
+                stream = video.srcObject;
+            }
+        }
+
+        async function toggleTorch() {
+            const btn = document.getElementById('torchBtn');
+            
+            try {
+                // Method 1: Using ImageCapture if available
+                const video = document.querySelector('#reader video');
+                if (video && video.srcObject) {
+                    const track = video.srcObject.getVideoTracks()[0];
+                    
+                    if (track) {
+                        const capabilities = track.getCapabilities();
+                        
+                        if (capabilities.torch) {
+                            torchEnabled = !torchEnabled;
+                            await track.applyConstraints({
+                                advanced: [{ torch: torchEnabled }]
+                            });
+                            btn.classList.toggle('active', torchEnabled);
+                            showToast(torchEnabled ? '🔦 Flash ON' : '🔦 Flash OFF');
+                            return;
+                        }
+                    }
+                }
+                
+                // Method 2: Try using ImageCapture API
+                if (typeof ImageCapture !== 'undefined') {
+                    const track = stream.getVideoTracks()[0];
+                    const imageCapture = new ImageCapture(track);
+                    const photoCapabilities = await imageCapture.getPhotoCapabilities();
+                    
+                    if (photoCapabilities.fillLightMode.includes('flash')) {
+                        torchEnabled = !torchEnabled;
+                        await imageCapture.setOptions({
+                            fillLightMode: torchEnabled ? 'flash' : 'off'
+                        });
+                        btn.classList.toggle('active', torchEnabled);
+                        showToast(torchEnabled ? '🔦 Flash ON' : '🔦 Flash OFF');
+                        return;
+                    }
+                }
+                
+                showToast('⚠️ Flash not supported on this device');
+                
+            } catch (err) {
+                console.error('Torch error:', err);
+                showToast('⚠️ Cannot control flash');
             }
         }
 
@@ -561,44 +732,45 @@
                 
                 // Vibrate device
                 if (navigator.vibrate) {
-                    navigator.vibrate(200);
+                    navigator.vibrate([50, 100, 50]);
                 }
                 
                 // Visual feedback
-                document.querySelector('.scanner-overlay').classList.add('vibrate');
-                setTimeout(() => {
-                    document.querySelector('.scanner-overlay').classList.remove('vibrate');
-                }, 300);
+                const overlay = document.getElementById('scannerOverlay');
+                overlay.classList.add('vibrate');
+                setTimeout(() => overlay.classList.remove('vibrate'), 300);
                 
                 showResult(decodedText);
                 addToHistory(decodedText);
                 
                 // Pause scanning briefly
                 html5QrCode.pause();
-                setTimeout(() => {
-                    if (isScanning) html5QrCode.resume();
-                }, 2000);
+                isScanning = false;
+                updateScanButton();
             }
         }
 
         function onScanFailure(error) {
-            // Ignore scan failures (when no QR code is in view)
+            // Ignore scan failures
         }
 
         function toggleScanning() {
+            if (!html5QrCode) return;
+            
             if (isScanning) {
                 html5QrCode.pause();
                 isScanning = false;
             } else {
                 html5QrCode.resume();
                 isScanning = true;
+                currentResult = ''; // Reset to allow rescanning same code
             }
             updateScanButton();
         }
 
         function updateScanButton() {
             const btnText = document.getElementById('scanBtnText');
-            btnText.textContent = isScanning ? 'Stop Scanning' : 'Resume Scanning';
+            btnText.textContent = isScanning ? '⏸ Pause' : '▶ Resume';
         }
 
         function showResult(text) {
@@ -611,19 +783,35 @@
             document.getElementById('resultPanel').classList.remove('active');
             document.getElementById('backdrop').classList.remove('active');
             currentResult = '';
-            if (isScanning) html5QrCode.resume();
+            if (!isScanning) {
+                toggleScanning(); // Auto-resume
+            }
         }
 
         function copyResult() {
             navigator.clipboard.writeText(currentResult).then(() => {
-                showToast('Copied to clipboard!');
+                showToast('✅ Copied!');
+            }).catch(() => {
+                // Fallback
+                const textArea = document.createElement("textarea");
+                textArea.value = currentResult;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('✅ Copied!');
             });
         }
 
         function openResult() {
-            let url = currentResult;
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = 'https://' + url;
+            let url = currentResult.trim();
+            if (!url.match(/^https?:\/\//i)) {
+                if (url.includes('.') && !url.includes(' ')) {
+                    url = 'https://' + url;
+                } else {
+                    showToast('Not a valid URL');
+                    return;
+                }
             }
             window.open(url, '_blank');
         }
@@ -636,7 +824,9 @@
                         text: currentResult
                     });
                 } catch (err) {
-                    console.log('Share canceled');
+                    if (err.name !== 'AbortError') {
+                        copyResult();
+                    }
                 }
             } else {
                 copyResult();
@@ -655,7 +845,10 @@
         }
 
         function updateHistoryCount() {
-            document.getElementById('scanCount').textContent = scanHistory.length;
+            const badge = document.getElementById('scanCount');
+            const count = scanHistory.length;
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'flex' : 'none';
         }
 
         function toggleHistory() {
@@ -679,12 +872,18 @@
                 return;
             }
             
-            list.innerHTML = scanHistory.map((item, index) => `
-                <div class="history-item" onclick="loadFromHistory(${index})">
-                    <div class="history-time">${new Date(item.time).toLocaleString()}</div>
-                    <div class="history-text">${item.text}</div>
-                </div>
-            `).join('');
+            list.innerHTML = scanHistory.map((item, index) => {
+                const date = new Date(item.time);
+                const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                
+                return `
+                    <div class="history-item" onclick="loadFromHistory(${index})">
+                        <div class="history-time">${dateStr} • ${timeStr}</div>
+                        <div class="history-text">${item.text}</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function loadFromHistory(index) {
@@ -694,30 +893,22 @@
         }
 
         function clearHistory() {
-            scanHistory = [];
-            localStorage.removeItem('qrScanHistory');
-            renderHistory();
-            updateHistoryCount();
+            if (confirm('Clear all scan history?')) {
+                scanHistory = [];
+                localStorage.removeItem('qrScanHistory');
+                renderHistory();
+                updateHistoryCount();
+            }
         }
 
         function closeAllPanels() {
             document.getElementById('resultPanel').classList.remove('active');
             document.getElementById('historyPanel').classList.remove('active');
             document.getElementById('backdrop').classList.remove('active');
-            if (isScanning) html5QrCode.resume();
         }
 
         function showPermissionDenied() {
             document.getElementById('permissionDenied').classList.add('show');
-        }
-
-        async function toggleTorch() {
-            // Note: Torch control requires specific camera capabilities
-            // This is a placeholder for devices that support it
-            torchEnabled = !torchEnabled;
-            const btn = document.getElementById('torchBtn');
-            btn.classList.toggle('active', torchEnabled);
-            showToast(torchEnabled ? 'Torch: ON' : 'Torch: OFF');
         }
 
         async function handleFileUpload(event) {
@@ -729,39 +920,57 @@
                     html5QrCode = new Html5Qrcode("reader");
                 }
                 
+                // Stop camera if running
+                if (isScanning) {
+                    await html5QrCode.stop();
+                }
+                
                 const result = await html5QrCode.scanFile(file, true);
                 currentResult = result;
                 showResult(result);
                 addToHistory(result);
+                
+                // Restart camera
+                await startScanning(currentCameraId);
+                
             } catch (err) {
-                showToast('No QR code found in image');
+                showToast('❌ No QR code found');
+                // Restart camera if it was stopped
+                if (!isScanning) {
+                    await startScanning(currentCameraId);
+                }
             }
+            
+            // Reset input
+            event.target.value = '';
         }
 
         function showToast(message) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            
             const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 100px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: rgba(0, 0, 0, 0.9);
-                color: #fff;
-                padding: 12px 24px;
-                border-radius: 25px;
-                font-size: 0.9rem;
-                z-index: 1000;
-                animation: fadeIn 0.3s;
-            `;
+            toast.className = 'toast';
             toast.textContent = message;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2000);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
         }
 
-        // Initialize on load
+        // Handle visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && html5QrCode && isScanning) {
+                html5QrCode.pause();
+            } else if (!document.hidden && html5QrCode && !document.getElementById('resultPanel').classList.contains('active')) {
+                html5QrCode.resume();
+            }
+        });
+
+        // Initialize
         window.addEventListener('load', initScanner);
-        
-        // Update history count on load
         updateHistoryCount();
     </script>
 </body>
